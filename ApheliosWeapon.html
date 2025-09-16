@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>厄斐琉斯武器模拟器</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #f5f5d5, #f5f5d5 100%);
+        color: #000000;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+
+        padding-bottom: 20px;
+      }
+
+      h1 {
+        color: #944785;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        font-size: 2.5rem;
+        text-shadow: 0 2px 4px rgba(246, 162, 255, 0.5);
+      }
+
+      .subtitle {
+        color: #edf2fa;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+      }
+
+      .weapon-system {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .main-weapon,
+      .offhand-weapon {
+        flex: 1;
+        min-width: 300px;
+        background: #edf2fa;
+        padding: 20px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .weapon-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #0095ff;
+      }
+
+      .weapon {
+        padding: 20px;
+        margin: 10px 0;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      }
+
+      .main-weapon .weapon {
+        background: #e63946;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(60, 60, 60, 0.3);
+      }
+
+      .offhand-weapon .weapon {
+        background: #457b9d;
+        color: white;
+        box-shadow: 0 0 15px rgba(60, 60, 60, 0.3);
+      }
+
+      .weapon.green {
+        background: #2a9d8f;
+      }
+      .weapon.red {
+        background: #e63946;
+      }
+      .weapon.purple {
+        background: #9b5de5;
+      }
+      .weapon.blue {
+        background: #457b9d;
+      }
+      .weapon.white {
+        background: white;
+        color: #1d3557;
+      }
+
+      .controls {
+        text-align: center;
+        margin: 20px 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      button {
+        background: #e63946;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 1.1rem;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 8px rgba(60, 60, 60, 0.3);
+        flex: 1;
+        min-width: 200px;
+      }
+
+      button:hover {
+        background: #f94144;
+        transform: translateY(-2px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button.swap {
+        background: #9b5de5;
+      }
+
+      button.swap:hover {
+        background: #7b4cbe;
+      }
+
+      .weapon-list {
+        background: #edf2fa;
+        padding: 20px;
+        border-radius: 20px;
+
+        box-shadow: 0 4px 15px rgba(60, 60, 60, 0.3);
+      }
+
+      .weapon-list-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #00c8ff;
+        text-align: center;
+      }
+
+      .weapon-queue {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px; /* 原为10px，改为20px，间距更大 */
+      }
+
+      .weapon-item {
+        padding: 10px 15px;
+        border-radius: 10px;
+        font-weight: bold;
+        min-width: 100px;
+        text-align: center;
+        transition: all 0.3s;
+      }
+
+      .weapon-item.current {
+        box-shadow: 0 0 15px rgba(60, 60, 60, 0.3);
+        transform: scale(1.1);
+      }
+
+      .weapon-item.next {
+        box-shadow: 0 0 10px rgba(60, 60, 60, 0.3);
+        transform: scale(1.05);
+      }
+
+      .history {
+        margin-top: 30px;
+        background: rgb(255, 255, 255);
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(60, 60, 60, 0.3);
+      }
+
+      .history-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #00c8ff;
+        text-align: center;
+      }
+
+      .history-content {
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #edf2fa;
+        border-radius: 10px;
+      }
+
+      .history-item {
+        padding: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .ammo-bar {
+        height: 20px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        margin: 15px 0;
+        overflow: hidden;
+      }
+
+      .ammo-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2a9d8f 0%, #e63946 100%);
+        border-radius: 10px;
+        transition: width 0.5s;
+      }
+
+      .explanation {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        border-radius: 20px;
+        margin-top: 30px;
+        box-shadow: 0 4px 15px rgba(60, 60, 60, 0.3);
+      }
+
+      .explanation-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #a8dadc;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .weapon-system {
+          flex-direction: column;
+        }
+
+        button {
+          min-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>厄斐琉斯武器顺序模拟</h1>
+      </header>
+
+      <div class="weapon-system">
+        <div class="main-weapon">
+          <h2 class="weapon-title">主武器</h2>
+          <div class="weapon green" id="main-weapon">通碧(绿)</div>
+          <div class="ammo-bar">
+            <div
+              class="ammo-fill"
+              id="main-ammo-fill"
+              style="
+                width: 100%;
+                background: linear-gradient(90deg, #2a9d8f 0%, #2a9d8f 100%);
+              "
+            ></div>
+          </div>
+          <p>弹药量: <span id="main-ammo-count">50</span>/50</p>
+        </div>
+
+        <div class="offhand-weapon">
+          <h2 class="weapon-title">副武器</h2>
+          <div class="weapon red" id="offhand-weapon">断魄(红)</div>
+          <div class="ammo-bar">
+            <div
+              class="ammo-fill"
+              id="offhand-ammo-fill"
+              style="
+                width: 100%;
+                background: linear-gradient(90deg, #457b9d 0%, #457b9d 100%);
+              "
+            ></div>
+          </div>
+          <p>弹药量: <span id="offhand-ammo-count">50</span>/50</p>
+        </div>
+      </div>
+      <div class="weapon-list">
+        <h2 class="weapon-list-title">武器队列顺序</h2>
+        <div class="weapon-queue" id="weapon-queue"></div>
+      </div>
+
+      <div class="controls">
+        <button id="use-main-weapon">使用主武器 Q (减少10弹药)</button>
+
+        <button id="swap-weapons" class="swap">交换武器 W</button>
+        <button id="reset">重置模拟</button>
+      </div>
+
+      <div class="history">
+        <h2 class="history-title">操作历史</h2>
+        <div class="history-content" id="history">
+          <div class="history-item">
+            模拟开始：初始武器顺序为 ["通碧(绿)", "断魄(红)", "坠明(紫)",
+            "荧焰(蓝)", "折镜(白)"]
+          </div>
+          <div class="history-item">
+            只有主手武器才能消耗弹药，副手武器无法直接使用
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // 武器数据
+        const weapons = [
+          { name: "通碧(绿)", color: "green", color1: "#2a9d8f", ammo: 50 },
+          { name: "断魄(红)", color: "red", color1: "#e63946", ammo: 50 },
+          { name: "坠明(紫)", color: "purple", color1: "#9b5de5", ammo: 50 },
+          { name: "荧焰(蓝)", color: "blue", color1: "#457b9d", ammo: 50 },
+          { name: "折镜(白)", color: "white", color1: "white", ammo: 50 },
+        ];
+
+        // 初始化武器队列
+        let weaponQueue = [...weapons];
+        let mainWeapon = { ...weaponQueue.shift() }; // 主武器从队列中取出（深拷贝）
+        let offhandWeapon = { ...weaponQueue.shift() }; // 副武器从队列中取出（深拷贝）
+        let history = [];
+
+        // 初始化显示
+        updateDisplay();
+
+        // 使用主武器按钮事件
+        document
+          .getElementById("use-main-weapon")
+          .addEventListener("click", function () {
+            useMainWeapon();
+          });
+
+        // 交换武器按钮事件
+        document
+          .getElementById("swap-weapons")
+          .addEventListener("click", function () {
+            swapWeapons();
+          });
+
+        // 重置按钮事件
+        document.getElementById("reset").addEventListener("click", function () {
+          resetSimulation();
+        });
+
+        // 键盘快捷键
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "w" || e.key === "W") {
+            swapWeapons();
+          } else if (e.key === "Q" || e.key === "q") {
+            useMainWeapon();
+          }
+        });
+
+        // 使用主武器函数
+        function useMainWeapon() {
+          mainWeapon.ammo -= 10;
+
+          // 更新弹药条
+          updateAmmoBar("main");
+
+          // 添加历史记录
+          addHistory(
+            `使用了 ${mainWeapon.name}(主)，剩余弹药: ${mainWeapon.ammo}/50`
+          );
+
+          // 如果弹药耗尽
+          if (mainWeapon.ammo <= 0) {
+            // 将当前主武器放回队列末尾（重置弹药）
+            weaponQueue.push({ ...mainWeapon, ammo: 50 });
+
+            // 从队列中取出新武器作为主武器
+            mainWeapon = { ...weaponQueue.shift() };
+
+            // 添加历史记录
+            addHistory(`主武器弹药耗尽，新主武器: ${mainWeapon.name}`);
+          }
+
+          updateDisplay();
+        }
+
+        // 交换武器函数
+        function swapWeapons() {
+          // 交换主副武器（包括弹药）
+          [mainWeapon, offhandWeapon] = [offhandWeapon, mainWeapon];
+
+          // 添加历史记录
+          addHistory(
+            `交换武器: 现在主武器是 ${mainWeapon.name}(${mainWeapon.ammo}/50)，副武器是 ${offhandWeapon.name}(${offhandWeapon.ammo}/50)`
+          );
+
+          updateDisplay();
+        }
+
+        // 更新显示
+        function updateDisplay() {
+          // 更新主手武器
+          const mainWeaponElement = document.getElementById("main-weapon");
+          mainWeaponElement.textContent = mainWeapon.name;
+          mainWeaponElement.className = "weapon " + mainWeapon.color;
+
+          // 更新副手武器
+          const offhandWeaponElement =
+            document.getElementById("offhand-weapon");
+          offhandWeaponElement.textContent = offhandWeapon.name;
+          offhandWeaponElement.className = "weapon " + offhandWeapon.color;
+
+          // 更新弹药显示
+          document.getElementById("main-ammo-count").textContent =
+            mainWeapon.ammo;
+          document.getElementById("offhand-ammo-count").textContent =
+            offhandWeapon.ammo;
+
+          // 更新弹药条
+          updateAmmoBar("main");
+          updateAmmoBar("offhand");
+
+          // 更新武器队列显示
+          const queueContainer = document.getElementById("weapon-queue");
+          queueContainer.innerHTML = "";
+
+          // 显示主武器
+          const mainElement = document.createElement("div");
+          mainElement.className = "weapon-item current " + mainWeapon.color;
+          mainElement.textContent = mainWeapon.name + " (主)";
+          queueContainer.appendChild(mainElement);
+          mainElement.style.backgroundColor = mainWeapon.color1;
+
+          // 显示副武器
+          const offhandElement = document.createElement("div");
+          offhandElement.className = "weapon-item next " + offhandWeapon.color;
+          offhandElement.textContent = offhandWeapon.name + " (副)";
+          offhandElement.style.backgroundColor = offhandWeapon.color1;
+          queueContainer.appendChild(offhandElement);
+
+          // 显示队列中的其他武器
+          weaponQueue.forEach((weapon, index) => {
+            const weaponElement = document.createElement("div");
+            weaponElement.className = "weapon-item " + weapon.color;
+            weaponElement.textContent = weapon.name;
+            weaponElement.style.backgroundColor = weapon.color1;
+            queueContainer.appendChild(weaponElement);
+          });
+        }
+
+        // 更新弹药条
+        function updateAmmoBar(type) {
+          const weapon = type === "main" ? mainWeapon : offhandWeapon;
+          const ammoFill = document.getElementById(`${type}-ammo-fill`);
+          const percentage = (weapon.ammo / 50) * 100;
+          ammoFill.style.width = percentage + "%";
+
+          // 根据弹药量改变颜色
+          if (percentage > 20) {
+            ammoFill.style.background = `linear-gradient(90deg, ${weapon.color1} 0%, ${weapon.color1} 100%)`;
+            //   } else if (percentage > ) {
+            //     ammoFill.style.background =
+            //       "linear-gradient(90deg, #e9c46a 0%, #e9c46a 100%)";
+            //
+          } else {
+            ammoFill.style.background =
+              "linear-gradient(90deg, #e63946 0%, #e63946 100%)";
+          }
+        }
+
+        // 添加历史记录
+        function addHistory(message) {
+          const historyElement = document.getElementById("history");
+          const historyItem = document.createElement("div");
+          historyItem.className = "history-item";
+          historyItem.textContent = message;
+
+          historyElement.appendChild(historyItem);
+          historyElement.scrollTop = historyElement.scrollHeight;
+
+          // 保存到历史数组
+          history.push(message);
+        }
+
+        // 重置模拟
+        function resetSimulation() {
+          weaponQueue = [...weapons];
+          mainWeapon = { ...weaponQueue.shift() };
+          offhandWeapon = { ...weaponQueue.shift() };
+
+          const historyElement = document.getElementById("history");
+          historyElement.innerHTML = "";
+
+          addHistory(
+            '模拟已重置：初始武器顺序为 ["通碧(绿)", "断魄(红)", "坠明(紫)", "荧焰(蓝)", "折镜(白)"]'
+          );
+          addHistory("只有主手武器才能消耗弹药，副手武器无法直接使用");
+
+          updateDisplay();
+        }
+      });
+    </script>
+  </body>
+</html>
